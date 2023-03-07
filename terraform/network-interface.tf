@@ -5,7 +5,7 @@ resource "azurerm_network_interface" "dhbw-cc2-networkinterface" {
 
   ip_configuration {
     name                          = "vm-ip-configuration"
-    subnet_id                     = azurerm_virtual_network.dhbw-cc2-virtual-network.subnet.id
+    subnet_id                     = azurerm_virtual_network.dhbw-cc2-virtual-network.subnet[0].id
     private_ip_address_allocation = "Dynamic"
   }
 }
