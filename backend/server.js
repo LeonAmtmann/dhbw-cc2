@@ -6,11 +6,21 @@ const cors = require('cors');
 const app = express();
 const port = process.env.PORT || 3000;
 
+// read endpoint from environment variables
+const endpoint = 'process.env.ENDPOINT';
+
+// read subscription key from local .secretsfile
+// first, read the local file
+const fs = require('fs');
+const secrets = fs.readFileSync('.secretsfile', 'utf8');
+// the first line contains the plain text subscription key
+const subscriptionKey = secrets
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 const corsOptions = {
-  origin: 'http://localhost:4200',
+  origin: ['https://summarize.amtmann.de', 'http://localhost:4200', 'http://localhost:80'],
   optionsSuccessStatus: 200,
 };
 
@@ -38,8 +48,6 @@ app.post('/summarize', async (req, res) => {
 });
 
 async function getSummaryFromAzure(text) {
-  const subscriptionKey = 'YOUR_AZURE_TEXT_ANALYTICS_SUBSCRIPTION_KEY';
-  const endpoint = 'YOUR_AZURE_TEXT_ANALYTICS_ENDPOINT';
   const url = `${endpoint}/text/analytics/v3.2-preview.1/summarize`;
 
   const data = {

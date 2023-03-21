@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    container_name: dhbw-cc2-backend
+    volumes:
+      - backend-node-modules:/app/node_modules
+    environment:
+      - ENDPOINT=https://eastus.api.cognitive.microsoft.com/
+      - SUBSCRIPTION_KEY=value
+      - PORT=3000
+    networks:
+      - app-network
+
+  frontend:
+    build: ./frontend/azure-summarizer
+    container_name: dhbw-cc2-frontend
+    networks:
+      - app-network
+
+  nginx-proxy:
+    image: nginx:latest
+    container_name: dhbw-cc2-nginx-proxy
+    volumes:
+      - ./proxy/nginx.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - app-network
+
+volumes:
+  backend-node-modules:
+
+networks:
+  app-network:

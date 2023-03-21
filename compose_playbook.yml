@@ -1,0 +1,68 @@
+- name: Deploy Docker Compose Application
+  hosts: remote-hosts
+  become: true
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install required system packages
+      apt:
+        name: ['apt-transport-https', 'ca-certificates', 'curl', 'gnupg', 'lsb-release']
+        state: present
+
+    - name: Add Docker GPG key
+      apt_key:
+        url: "https://download.docker.com/linux/ubuntu/gpg"
+        state: present
+
+    - name: Add Docker repository
+      apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+        state: present
+        update_cache: yes
+
+    - name: Install Docker
+      apt:
+        name: docker-ce
+        state: present
+
+    - name: Install Docker Compose
+      get_url:
+        url: "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-Linux-x86_64"
+        dest: /usr/local/bin/docker-compose
+        mode: '0755'
+  
+    - name: Copy project files to remote VM
+      synchronize:
+        src: .
+        dest: /opt/
+        delete: yes
+        recursive: yes
+
+    - name: Install pip
+      apt:
+        name: python3-pip
+        state: present
+
+    - name: Install Docker SDK for Python
+      ansible.builtin.pip:
+        name: docker
+        state: present
+        executable: pip3
+
+    - name: Install docker-compose Python library
+      ansible.builtin.pip:
+        name: docker-compose
+        state: present
+        executable: pip3
+
+    - name: Deploy Docker Compose application
+      docker_compose:
+        project_src: /opt/dhbw-cc2
+        state: present
+        pull: yes
+        build: yes
+        remove_orphans: yes
+      register: output

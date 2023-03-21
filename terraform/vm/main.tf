@@ -16,26 +16,33 @@ resource "azurerm_resource_group" "cc2_rg" {
   location = "East US"
 }
 
-resource "azurerm_cognitive_account" "text_analytics" {
-  name                = "cc2-textanalyticsaccount"
+resource "azurerm_public_ip" "cc2_public_ip" {
+  name                = "cc2-public-ip"
   location            = azurerm_resource_group.cc2_rg.location
   resource_group_name = azurerm_resource_group.cc2_rg.name
-  kind                = "TextAnalytics"
-  sku_name            = "F0"
+  allocation_method   = "Static"
+}
 
-  tags = {
-    Terraform = "true"
-  }
+resource "azurerm_cognitive_account" "cog_text_analytics" {
+  name                = "cc2-cog-text-analytics"
+  location            = azurerm_resource_group.cc2_rg.location
+  resource_group_name = azurerm_resource_group.cc2_rg.name
+  kind                = "CognitiveServices"
+  sku_name            = "S0"
 }
 
 output "text_analytics_endpoint" {
   sensitive = true
-  value = azurerm_cognitive_account.text_analytics.endpoint
+  value = azurerm_cognitive_account.cog_text_analytics.endpoint
 }
 
 output "text_analytics_key1" {
   sensitive = true
-  value = azurerm_cognitive_account.text_analytics.primary_access_key
+  value = azurerm_cognitive_account.cog_text_analytics.primary_access_key
+}
+
+output "public_ip_address" {
+  value = azurerm_public_ip.cc2_public_ip.ip_address
 }
 
 resource "azurerm_virtual_network" "cc2_vnet" {
@@ -60,39 +67,91 @@ resource "azurerm_network_interface" "cc2_nic" {
   ip_configuration {
     name                          = "cc2-ip-config"
     subnet_id                     = azurerm_subnet.cc2_subnet.id
-    private_ip_address_allocation = "Dynamic"
+    private_ip_address_allocation = "Static"
+    private_ip_address            = "10.0.1.4"
+    public_ip_address_id = azurerm_public_ip.cc2_public_ip.id
   }
 }
 
-resource "azurerm_virtual_machine" "cc2_vm" {
+resource "azurerm_network_security_group" "cc2_nsg" {
+  name                = "cc2-nsg"
+  location            = azurerm_resource_group.cc2_rg.location
+  resource_group_name = azurerm_resource_group.cc2_rg.name
+}
+
+resource "azurerm_network_security_rule" "cc2_allow_http" {
+  name                        = "cc2-allow-http"
+  priority                    = 100
+  direction                   = "Inbound"
+  access                      = "Allow"
+  protocol                    = "Tcp"
+  source_port_range           = "*"
+  destination_port_range      = "80"
+  source_address_prefix       = "94.16.106.239"
+  destination_address_prefix  = "*"
+  network_security_group_name = azurerm_network_security_group.cc2_nsg.name
+  resource_group_name         = azurerm_resource_group.cc2_rg.name
+}
+
+resource "azurerm_network_security_rule" "cc2_allow_https" {
+  name                        = "cc2-allow-https"
+  priority                    = 110
+  direction                   = "Inbound"
+  access                      = "Allow"
+  protocol                    = "Tcp"
+  source_port_range           = "*"
+  destination_port_range      = "443"
+  source_address_prefix       = "94.16.106.239"
+  destination_address_prefix  = "*"
+  network_security_group_name = azurerm_network_security_group.cc2_nsg.name
+  resource_group_name         = azurerm_resource_group.cc2_rg.name
+}
+
+resource "azurerm_network_security_rule" "cc2_allow_ssh" {
+  name                        = "cc2-allow-ssh"
+  priority                    = 120
+  direction                   = "Inbound"
+  access                      = "Allow"
+  protocol                    = "Tcp"
+  source_port_range           = "*"
+  destination_port_range      = "22"
+  source_address_prefix       = "94.16.106.239"
+  destination_address_prefix  = "*"
+  network_security_group_name = azurerm_network_security_group.cc2_nsg.name
+  resource_group_name         = azurerm_resource_group.cc2_rg.name
+}
+
+
+resource "azurerm_network_interface_security_group_association" "cc2_nic_nsg_association" {
+  network_interface_id      = azurerm_network_interface.cc2_nic.id
+  network_security_group_id = azurerm_network_security_group.cc2_nsg.id
+}
+
+
+resource "azurerm_linux_virtual_machine" "cc2_vm" {
   name                  = "cc2-virtual-machine"
   location              = azurerm_resource_group.cc2_rg.location
   resource_group_name   = azurerm_resource_group.cc2_rg.name
   network_interface_ids = [azurerm_network_interface.cc2_nic.id]
-  vm_size               = "Standard_B1s"
+  size               = "Standard_F2s_v2"
+  admin_username = "azureuser"
+  admin_password = "P@ssw0rd123!"
 
-  storage_image_reference {
+  source_image_reference {
     publisher = "Canonical"
-    offer     = "UbuntuServer"
-    sku       = "20.04-LTS"
+    offer     = "0001-com-ubuntu-server-jammy"
+    sku       = "22_04-lts-gen2"
     version   = "latest"
   }
 
-  storage_os_disk {
-    name              = "cc2-os-disk"
+  os_disk {
+    storage_account_type = "Standard_LRS"
     caching           = "ReadWrite"
-    create_option     = "FromImage"
-    managed_disk_type = "Standard_LRS"
   }
 
-  os_profile {
-    computer_name  = "cc2-vm"
-    admin_username = "azureuser"
-    admin_password = "P@ssw0rd123!"
-  }
-
-  os_profile_linux_config {
-    disable_password_authentication = false
+  admin_ssh_key {
+    username = "azureuser"
+    public_key = file("~/.ssh/keys/macbook.pub")
   }
 
   tags = {
