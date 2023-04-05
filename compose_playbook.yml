@@ -44,6 +44,8 @@
         dest: /opt/
         delete: yes
         recursive: yes
+        sync_opts:
+          - "--include=.*"
 
     - name: Create certs and certs-data directories
       ansible.builtin.file:
