@@ -3,3 +3,5 @@ terraform.tfvars
 .terraform.lock.hcl
 .terraformrc
 .secretsfile
+*.tfstate
+*.tfstate.*

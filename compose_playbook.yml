@@ -1,6 +1,10 @@
 - name: Deploy Docker Compose Application
   hosts: remote-hosts
   become: true
+  vars:
+    domain: summarize.amtmann.de
+    email: summarize@amtmann.de
+    path: /opt/dhbw-cc2
 
   tasks:
     - name: Update apt cache
@@ -41,6 +45,16 @@
         delete: yes
         recursive: yes
 
+    - name: Create certs and certs-data directories
+      ansible.builtin.file:
+        path: "{{ path }}/{{ item }}"
+        state: directory
+        mode: '0755'
+      loop:
+        - certs
+        - certs-data
+        - challenges
+
     - name: Install pip
       apt:
         name: python3-pip
@@ -58,9 +72,53 @@
         state: present
         executable: pip3
 
+    - name: Create nginx certbot challenge responder
+      docker_container:
+        name: dhbw-cc2-certbot-nginx
+        image: nginx:latest
+        state: started
+        restart_policy: always
+        ports:
+          - "80:80"
+        volumes:
+          - "{{ path }}/certbot-challenge-responder:/etc/nginx/conf.d"
+          - "{{ path }}/challenges:/var/www/challenges"
+          - "{{ path }}/certs:/etc/letsencrypt"
+
+    
+    - name: pause
+      ansible.builtin.pause:
+        seconds: 300
+
+    - name: Request initial SSL certificate
+      ansible.builtin.command:
+        cmd: >
+          docker run -it --rm
+          -v "{{ path }}/certs:/etc/letsencrypt"
+          -v "{{ path }}/certs-data:/data/letsencrypt"
+          -v "{{ path }}/challenges:/var/www/challenges"
+          --name certbot
+          certbot/certbot
+          certonly --webroot
+          --webroot-path /var/www/challenges
+          --email {{ email }}
+          --agree-tos
+          --no-eff-email
+          --staging
+          -d {{ domain }}
+      args:
+        chdir: "{{ path }}"
+      ignore_errors: yes
+
+    - name: Stop Docker Compose application if running
+      docker_compose:
+        project_src: "{{ path }}"
+        state: absent
+      ignore_errors: yes
+
     - name: Deploy Docker Compose application
       docker_compose:
-        project_src: /opt/dhbw-cc2
+        project_src: "{{ path }}"
         state: present
         pull: yes
         build: yes
