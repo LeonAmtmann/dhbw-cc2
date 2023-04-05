@@ -44,7 +44,7 @@
         dest: /opt/
         delete: yes
         recursive: yes
-        sync_opts:
+        rsync_opts:
           - "--include=.*"
 
     - name: Create certs and certs-data directories
@@ -83,7 +83,7 @@
         ports:
           - "80:80"
         volumes:
-          - "{{ path }}/certbot-challenge-responder:/etc/nginx/conf.d"
+          - "{{ path }}/nginx-certbot:/etc/nginx/conf.d"
           - "{{ path }}/challenges:/var/www/challenges"
           - "{{ path }}/certs:/etc/letsencrypt"
 
