@@ -42,8 +42,6 @@ services:
       - ./challenges:/var/www/challenges
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 
-
-
 volumes:
   backend-node-modules:
 
