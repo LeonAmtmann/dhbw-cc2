@@ -38,11 +38,13 @@
         dest: /usr/local/bin/docker-compose
         mode: '0755'
   
-    - name: Copy project files to remote VM
-      synchronize:
-        src: ./*
-        dest: "{{ path }}/"
-        recursive: yes
+- name: Copy project files to remote VM
+  synchronize:
+    src: .
+    dest: "{{ path }}"
+    recursive: yes
+    rsync_opts:
+      - "-R"
 
     - name: Install pip
       apt:
