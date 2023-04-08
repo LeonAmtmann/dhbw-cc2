@@ -42,20 +42,7 @@
       synchronize:
         src: .
         dest: "{{ path }}"
-        delete: yes
         recursive: yes
-        rsync_opts:
-          - "--force"
-
-    - name: Create certs and certs-data directories
-      ansible.builtin.file:
-        path: "{{ path }}/{{ item }}"
-        state: directory
-        mode: '0755'
-      loop:
-        - certs
-        - certs-data
-        - challenges
 
     - name: Install pip
       apt:
