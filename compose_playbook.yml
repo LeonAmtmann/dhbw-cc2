@@ -40,7 +40,7 @@
   
     - name: Copy project files to remote VM
       synchronize:
-        src: .
+        src: ./*
         dest: "{{ path }}/"
         recursive: yes
 
