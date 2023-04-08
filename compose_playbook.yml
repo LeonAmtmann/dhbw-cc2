@@ -41,7 +41,7 @@
     - name: Copy project files to remote VM
       synchronize:
         src: .
-        dest: "{{ path }}"
+        dest: "{{ path }}/"
         recursive: yes
 
     - name: Install pip
