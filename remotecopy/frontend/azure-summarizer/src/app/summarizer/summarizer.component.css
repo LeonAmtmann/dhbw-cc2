@@ -1,0 +1,42 @@
+.textarea-container {
+    margin-bottom: 1rem;
+  }
+  
+  @media (min-width: 768px) {
+    .textarea-container {
+      margin-bottom: 0;
+    }
+  }
+  
+  button {
+    margin: 1rem 0;
+  }
+  
+  .overlay {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    border-radius: 5px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .alert {
+    background-color: #ff9800; /* Add this line for the orange background */
+    color: #fff; /* Add this line for white text */
+    animation: fadeinout 5s forwards;
+  }
+  
+  @keyframes fadeinout {
+    0% {
+      opacity: 1;
+    }
+    80% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+  
