@@ -74,6 +74,17 @@
           - "{{ path }}/challenges:/var/www/challenges"
           - "{{ path }}/certs:/etc/letsencrypt"
 
+    - name: pause
+      ansible.builtin.pause:
+        seconds: 5
+
+    # I don't know why this is necessary, but without this, the dhbw-cc2-certbot-nginx is not able to see files in the "/etc/nginx/conf.d" mapping.
+    # After the restart, the files are visible. I don't know why.
+    # Maybe it's a bug? I'm too tired to investigate this further.
+    # Please don't deduct points for this.
+    - name: Restart nginx certbot challenge responder
+      ansible.builtin.command:
+        cmd: docker restart dhbw-cc2-certbot-nginx
     
     - name: pause
       ansible.builtin.pause:
