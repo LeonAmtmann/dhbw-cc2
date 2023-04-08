@@ -41,11 +41,11 @@
     - name: Copy project files to remote VM
       synchronize:
         src: .
-        dest: /opt/
+        dest: "{{ path }}"
         delete: yes
         recursive: yes
         rsync_opts:
-          - "--include=.*"
+          - "--force"
 
     - name: Create certs and certs-data directories
       ansible.builtin.file:
