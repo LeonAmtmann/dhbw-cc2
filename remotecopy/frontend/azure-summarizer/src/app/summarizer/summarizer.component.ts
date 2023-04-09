@@ -25,7 +25,6 @@ export class SummarizerComponent {
     );
   }
   
-
   getSummary(text: string) {
     const url = 'https://summarize.amtmann.de/api/summarize';
     return this.http.post(url, { text: text });

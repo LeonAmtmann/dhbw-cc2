@@ -102,8 +102,8 @@
           --webroot-path /var/www/challenges
           --email {{ email }}
           --agree-tos
+          --keep-until-expiring
           --no-eff-email
-          --staging
           -d {{ domain }}
       args:
         chdir: "{{ path }}"
