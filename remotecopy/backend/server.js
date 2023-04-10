@@ -46,7 +46,8 @@ app.post('/summarize', async (req, res) => {
   try {
     const summarizationResult = await getSummaryFromAzure(textToSummarize, length);
     console.log('Summarization result:', summarizationResult);
-    res.json(summarizationResult);
+    const result = { summary: summarizationResult };
+    res.json(result);
   } catch (error) {
     console.error('Error during summarization:', error.message);
     res.status(500).json({ error: error.message });

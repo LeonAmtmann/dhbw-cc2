@@ -12,6 +12,7 @@ export class SummarizerComponent {
   inputText: string = '';
   summary: string = '';
   errorMessage: string = '';
+  summaryLength: number = 3;
 
   onSubmit() {
     this.getSummary(this.inputText).subscribe(
@@ -25,8 +26,8 @@ export class SummarizerComponent {
   }
   
   getSummary(text: string) {
-    const url = 'https://summarize.amtmann.de/summarize';
-    return this.http.post(url, { text: text });
+    const url = 'http://localhost:3000/summarize';
+    return this.http.post(url, { text: text, length: this.summaryLength});
   }
 
   showError(message: string, duration: number = 5000) {
