@@ -5,3 +5,9 @@ terraform.tfvars
 .secretsfile
 *.tfstate
 *.tfstate.*
+.env
+
+# Node.js files
+node_modules/
+npm-debug.log
+yarn-error.log

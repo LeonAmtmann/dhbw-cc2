@@ -1,20 +1,19 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const axios = require('axios');
 const cors = require('cors');
+const { AzureKeyCredential, TextAnalysisClient } = require('@azure/ai-language-text');
+require('dotenv').config();
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-// read endpoint from environment variables
-const endpoint = 'process.env.ENDPOINT';
+// read endpoint and apiKey from environment variables
+const endpoint = process.env.ENDPOINT;
+const apiKey = process.env.LANGUAGE_API_KEY;
 
-// read subscription key from local .secretsfile
-// first, read the local file
-const fs = require('fs');
-const secrets = fs.readFileSync('.secretsfile', 'utf8');
-// the first line contains the plain text subscription key
-const subscriptionKey = secrets
+//print endpoint and apiKey to console
+console.log('endpoint: ', endpoint);
+console.log('apiKey: ', apiKey);
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -29,16 +28,23 @@ app.use(cors(corsOptions));
 app.post('/summarize', async (req, res) => {
   console.log('Received a request to summarize text');
   const textToSummarize = req.body.text;
-  
+  const length = parseInt(req.body.length);
+
+  // guards
   if (!textToSummarize) {
     console.log('Bad request: Missing text');
     return res.status(400).json({ error: 'Text is required' });
   }
 
+  if (isNaN(length)) {
+    console.log('Bad request: Invalid length');
+    return res.status(400).json({ error: 'Length must be a number' });
+  }
+
   console.log('Text to summarize:', textToSummarize);
 
   try {
-    const summarizationResult = await getSummaryFromAzure(textToSummarize);
+    const summarizationResult = await getSummaryFromAzure(textToSummarize, length);
     console.log('Summarization result:', summarizationResult);
     res.json(summarizationResult);
   } catch (error) {
@@ -47,29 +53,32 @@ app.post('/summarize', async (req, res) => {
   }
 });
 
-async function getSummaryFromAzure(text) {
-  const url = `${endpoint}/text/analytics/v3.2-preview.1/summarize`;
+async function getSummaryFromAzure(text, length) {
+  const client = new TextAnalysisClient(endpoint, new AzureKeyCredential(apiKey));
+  const actions = [
+    {
+      kind: 'ExtractiveSummarization',
+      maxSentenceCount: length || 3,
+    },
+  ];
+  const poller = await client.beginAnalyzeBatch(actions, [text]);
 
-  const data = {
-    documents: [
-      {
-        language: 'en',
-        id: '1',
-        text: text,
-      },
-    ],
-  };
+  const results = await poller.pollUntilDone();
 
-  const headers = {
-    'Content-Type': 'application/json',
-    'Ocp-Apim-Subscription-Key': subscriptionKey,
-  };
-
-  console.log('Sending request to Azure Text Analytics API');
-  const response = await axios.post(url, data, { headers });
-  const summary = response.data.documents[0].sentences;
-  console.log('Received summary from Azure Text Analytics API:', summary);
-  return { summary };
+  let summary = '';
+  for await (const actionResult of results) {
+    if (actionResult.kind !== 'ExtractiveSummarization') {
+      throw new Error(`Expected extractive summarization results but got: ${actionResult.kind}`);
+    }
+    if (actionResult.error) {
+      const { code, message } = actionResult.error;
+      throw new Error(`Unexpected error (${code}): ${message}`);
+    }
+    for (const result of actionResult.results) {
+      summary = result.sentences.map((sentence) => sentence.text).join('\n');
+    }
+  }
+  return summary;
 }
 
 app.listen(port, () => {

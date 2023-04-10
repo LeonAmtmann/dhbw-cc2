@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-
 @Component({
   selector: 'app-summarizer',
   templateUrl: './summarizer.component.html',
@@ -26,15 +25,14 @@ export class SummarizerComponent {
   }
   
   getSummary(text: string) {
-    const url = 'https://summarize.amtmann.de/api/summarize';
+    const url = 'https://summarize.amtmann.de/summarize';
     return this.http.post(url, { text: text });
   }
 
-showError(message: string, duration: number = 5000) {
-  this.errorMessage = message;
-  setTimeout(() => {
-    this.errorMessage = '';
-  }, duration);
-}
-
+  showError(message: string, duration: number = 5000) {
+    this.errorMessage = message;
+    setTimeout(() => {
+      this.errorMessage = '';
+    }, duration);
+  }
 }
