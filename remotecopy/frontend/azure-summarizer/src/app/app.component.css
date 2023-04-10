@@ -1,0 +1,51 @@
+body, html {
+    height: 100%;
+    margin: 0;
+  }
+  
+  .summarizer-wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    height: calc(100% - 40px); /* Subtract the padding */
+    padding: 20px;
+  }
+  
+  .textarea-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+    margin-right: 10px;
+  }
+  
+  .textarea-container:last-child {
+    margin-right: 0;
+  }
+  
+  .textarea-container textarea {
+    flex-grow: 1;
+    resize: none;
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 5px;
+    height: 100%;
+  }
+  
+  .controls-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 0 20px;
+  }
+  
+  .overlay {
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+  }
+  

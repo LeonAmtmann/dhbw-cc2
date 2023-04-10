@@ -4,16 +4,17 @@
       </div>
     <div class="row">
       <div class="col-md-4 col-sm-12 textarea-container">
-        <textarea [(ngModel)]="inputText" class="form-control" rows="7" placeholder="Input text"></textarea>
+        <textarea [(ngModel)]="inputText" class="form-control" rows="15" placeholder="Input text"></textarea>
       </div>
       <div class="col-md-4 col-sm-12 d-flex justify-content-center align-items-center flex-column">
         <button (click)="onSubmit()" class="btn btn-primary mb-2">Summarize</button>
+        <label for="summary-length" class="w-50 text-center">Summary length (number of sentences)</label>
         <select [(ngModel)]="summaryLength" class="form-control w-50">
           <option *ngFor="let number of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]" [ngValue]="number">{{ number }}</option>
         </select>
       </div>      
       <div class="col-md-4 col-sm-12 textarea-container">
-        <textarea [value]="summary" class="form-control" rows="7" placeholder="Summary" readonly></textarea>
+        <textarea [value]="summary" class="form-control" rows="15" placeholder="Summary" readonly></textarea>
       </div>
     </div>
   </div>
