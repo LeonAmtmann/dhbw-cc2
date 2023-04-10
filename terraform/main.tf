@@ -16,6 +16,53 @@ resource "azurerm_resource_group" "cc2_rg" {
   location = "East US"
 }
 
+# Add the Azure Cosmos DB account configuration
+resource "azurerm_cosmosdb_account" "cc2_cosmosdb" {
+  name                = "cc2-cosmosdb"
+  location            = azurerm_resource_group.cc2_rg.location
+  resource_group_name = azurerm_resource_group.cc2_rg.name
+  offer_type          = "Standard"
+  kind                = "GlobalDocumentDB"
+
+  consistency_policy {
+    consistency_level       = "BoundedStaleness"
+    max_interval_in_seconds = 10
+    max_staleness_prefix    = 200
+  }
+
+  geo_location {
+    location          = azurerm_resource_group.cc2_rg.location
+    failover_priority = 0
+  }
+}
+
+# Add outputs for Cosmos DB properties
+output "cosmos_db_id" {
+  value = azurerm_cosmosdb_account.cc2_cosmosdb.id
+}
+
+output "cosmos_db_endpoint" {
+  value = azurerm_cosmosdb_account.cc2_cosmosdb.endpoint
+}
+
+output "cosmos_db_endpoints_read" {
+  value = azurerm_cosmosdb_account.cc2_cosmosdb.read_endpoints
+}
+
+output "cosmos_db_endpoints_write" {
+  value = azurerm_cosmosdb_account.cc2_cosmosdb.write_endpoints
+}
+
+output "cosmos_db_primary_key" {
+  sensitive = true
+  value     = azurerm_cosmosdb_account.cc2_cosmosdb.primary_key
+}
+
+output "cosmos_db_secondary_key" {
+  sensitive = true
+  value     = azurerm_cosmosdb_account.cc2_cosmosdb.secondary_key
+}
+
 resource "azurerm_public_ip" "cc2_public_ip" {
   name                = "cc2-public-ip"
   location            = azurerm_resource_group.cc2_rg.location
