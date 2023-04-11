@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-summarizer',
@@ -26,8 +27,7 @@ export class SummarizerComponent {
   }
   
   getSummary(text: string) {
-    const url = 'http://localhost:3000/summarize';
-    return this.http.post(url, { text: text, length: this.summaryLength});
+    return this.http.post(environment.apiUrl, { text: text, length: this.summaryLength});
   }
 
   showError(message: string, duration: number = 5000) {
