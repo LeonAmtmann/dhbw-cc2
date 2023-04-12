@@ -17,16 +17,3 @@ resource "null_resource" "depends_on_ssh_key" {
     key_id = tls_private_key.ssh_key[0].id
   }
 }
-
-# Save the generated private key to a local file with appropriate permissions
-resource "local_file" "private_key" {
-  depends_on      = [null_resource.depends_on_ssh_key]
-  content         = fileexists("${path.module}/ssh_key.pem") ? file("${path.module}/ssh_key.pem") : tls_private_key.ssh_key[0].private_key_pem
-  filename        = "${path.module}/ssh_key.pem"
-  file_permission = "0600"
-
-  # Save the corresponding public key to a local file using a local-exec provisioner
-  provisioner "local-exec" {
-    command = "echo \"${tls_private_key.ssh_key[0].public_key_openssh}\" > ${path.module}/ssh_key.pub"
-  }
-}
