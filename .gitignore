@@ -11,3 +11,7 @@ terraform.tfvars
 node_modules/
 npm-debug.log
 yarn-error.log
+
+# SSH keys
+*.pem
+*.pub
