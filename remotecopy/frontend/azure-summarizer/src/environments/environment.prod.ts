@@ -1,5 +1,5 @@
 export const environment = {
     production: true,
-    apiUrl: 'https://summarize.amtmann.de/summarize'
+    apiUrl: 'https://summarize.amtmann.de/api/summarize'
   };
   
