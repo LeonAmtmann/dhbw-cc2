@@ -45,6 +45,18 @@
         recursive: true
         delete: true
 
+    - name: Copy .env file to remote backend directory
+      ansible.builtin.copy:
+        src: ./terraform/.env
+        dest: "{{ path }}/backend/.env"
+        mode: '0600'
+
+    - name: Create certs directory if it does not already exist
+      ansible.builtin.file:
+        path: "{{ path }}/certs"
+        state: directory
+        mode: '0755'
+
     - name: Install pip
       apt:
         name: python3-pip
