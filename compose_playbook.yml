@@ -63,6 +63,12 @@
         dest: "{{ path }}/backend/.env"
         mode: '0600'
 
+    - name: Copy nginx.conf file to remote nginx directory
+      ansible.builtin.template:
+        src: ./remotecopy/nginx-certbot/nginx.conf.j2
+        dest: "{{ path }}/nginx-certbot/nginx.conf"
+        mode: '0644'
+
     - name: Create certs directory if it does not already exist
       ansible.builtin.file:
         path: "{{ path }}/certs"
