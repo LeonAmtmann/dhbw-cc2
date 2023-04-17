@@ -23,14 +23,6 @@ resource "azurerm_public_ip" "cc2_public_ip" {
   allocation_method   = "Static"
 }
 
-resource "azurerm_cognitive_account" "cog_text_analytics" {
-  name                = "cc2-cog-text-analytics"
-  location            = azurerm_resource_group.cc2_rg.location
-  resource_group_name = azurerm_resource_group.cc2_rg.name
-  kind                = "CognitiveServices"
-  sku_name            = "S0"
-}
-
 resource "azurerm_virtual_network" "cc2_vnet" {
   name                = "cc2-virtual-network"
   location            = azurerm_resource_group.cc2_rg.location
