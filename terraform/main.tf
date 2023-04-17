@@ -93,12 +93,11 @@ resource "azurerm_network_security_rule" "cc2_allow_ssh" {
   protocol                    = "Tcp"
   source_port_range           = "*"
   destination_port_range      = "22"
-  source_address_prefix       = "94.16.106.239"
+  source_address_prefix       = "*"
   destination_address_prefix  = "*"
   network_security_group_name = azurerm_network_security_group.cc2_nsg.name
   resource_group_name         = azurerm_resource_group.cc2_rg.name
 }
-
 
 resource "azurerm_network_interface_security_group_association" "cc2_nic_nsg_association" {
   network_interface_id      = azurerm_network_interface.cc2_nic.id
