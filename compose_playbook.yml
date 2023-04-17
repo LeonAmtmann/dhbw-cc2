@@ -7,6 +7,18 @@
     path: /opt/dhbw-cc2
 
   tasks:
+    - name: Display IP, domain, and SSL certificate instructions
+      ansible.builtin.debug:
+        msg:
+          - "IP Address: {{ ansible_ssh_host }}"
+          - "Domain: {{ domain }}"
+          - "Please ensure that the domain {{ domain }} points to the IP address {{ ansible_ssh_host }} for SSL certificate requesting with certbot to work."
+          - "Wait at least 15 minutes for DNS changes to propagate."
+
+    - name: pause for 30 minutes
+      ansible.builtin.pause:
+        seconds: 1800
+
     - name: Update apt cache
       apt:
         update_cache: yes
