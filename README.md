@@ -19,3 +19,4 @@
 - Ansible will ask to approve the fingerprint of the VMs. Type `yes` and press enter.
 - Requesting an SSL certificate will only work if the domain at the top of the Ansible playbook is pointing to the public IP of the VM.
 - Sometimes, DNS changes take a while to propagate. If you get an error message about the domain not being reachable when certbot tries requesting the certificate, wait a few minutes and try again.
+- The Ansible script can be run manually by running `ansible-playbook -i ../inventory.ini ../compose_playbook.yml` in the `terraform` directory.
